@@ -1,8 +1,8 @@
 {
     "files.associations": {
+        "*.inc": "php",
         "*.ejs": "html",
         "*.sass": "sass",
-        "*.inc": "php",
         "iostream": "cpp",
         "array": "cpp",
         "atomic": "cpp",
@@ -53,6 +53,8 @@
         "format": "cpp",
         "span": "cpp",
         "text_encoding": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "iomanip": "cpp",
+        "sstream": "cpp"
     }
 }
