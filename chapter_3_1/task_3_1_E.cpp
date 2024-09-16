@@ -26,12 +26,11 @@
  */
 
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <string>
 
-int
-main()
-{
+int main() {
     std::list<std::string> text;
     std::list<std::string> clipboard;
     std::string line;
@@ -46,12 +45,14 @@ main()
     auto current = text.begin();
     auto offsetCurrent = text.begin();
     bool isShift = false;
+    size_t offset;
 
     while (std::getline(std::cin, command)) {
         if (command == "Up") {
             if (isShift) {
                 if (offsetCurrent != text.begin()) {
                     offsetCurrent--;
+                    offset++;
                 }
             } else {
                 if (current != text.begin()) {
@@ -62,6 +63,7 @@ main()
             if (isShift) {
                 if (offsetCurrent != text.end()) {
                     offsetCurrent++;
+                    offset++;
                 }
             } else {
                 if (current != text.end()) {
@@ -71,20 +73,39 @@ main()
         } else if (command == "Ctrl+X") {
             if (current != text.end()) {
                 clipboard.clear();
+                auto toSplice = current;
                 if ((isShift && offsetCurrent == current) || !isShift) {
-                    auto toSplice = current;
                     current = std::next(current);
                     clipboard.splice(clipboard.begin(), text, toSplice);
-                } else if (isShift && offsetCurrent > 0) {
-                } else if (isShift && offsetCurrent < 0) {
+                } else if (isShift && offsetCurrent != current) {
+                    // offset = std::distance(current, offsetCurrent);
+                    if (offset > 0) {
+                        clipboard.splice(clipboard.begin(), text, current,
+                                         offsetCurrent);
+                        current = offsetCurrent;
+                    } else {
+                        clipboard.splice(clipboard.begin(), text, offsetCurrent,
+                                         current);
+                    }
                 }
+                isShift = false;
+                offset = 0;
             }
-            isShift = false;
         } else if (command == "Ctrl+V") {
-            text.insert(current, clipboard.begin(), clipboard.end());
-            isShift = false;
+            if (clipboard.size() > 0) {
+                // offset = std::distance(current, offsetCurrent);
+                if (offset > 0) {
+                    current = text.erase(current, offsetCurrent);
+                } else {
+                    current = text.erase(offsetCurrent, current);
+                }
+                text.insert(current, clipboard.begin(), clipboard.end());
+                isShift = false;
+                offset = 0;
+            }
         } else if (command == "Shift") {
             isShift = true;
+            offset = 0;
             offsetCurrent = current;
         }
     }
