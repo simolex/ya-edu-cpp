@@ -20,10 +20,10 @@
  */
 
 #include <iostream>
-#include <list>
+#include <deque>
 #include <string>
 
-#include <iterator>
+#include <cmath>
 
 void MakeTrain();
 
@@ -54,7 +54,7 @@ void Print(const List &data, const std::string delimiter)
 
 void MakeTrain()
 {
-    std::list<int> train;
+    std::deque<int> train;
     std::string command;
     int param;
     auto front = train.begin();
@@ -77,21 +77,13 @@ void MakeTrain()
         else if (command == "-left")
         {
 
-            if (param >= train.size())
-            {
-                train.clear();
-            }
-            std::advance(front, param - 1);
-            train.erase(train.begin(), front);
+            param = std::min(param, (int)train.size());
+            train.erase(train.begin(), train.begin() + param);
         }
         else if (command == "-right")
         {
-            if (param >= train.size())
-            {
-                train.clear();
-            }
-            std::advance(back, -1 * param);
-            train.erase(back, train.end());
+            param = std::min(param, (int)train.size());
+            train.erase(train.begin() + train.size() - param, train.end());
         }
     }
 
