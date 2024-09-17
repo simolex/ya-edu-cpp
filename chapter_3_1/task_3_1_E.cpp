@@ -30,7 +30,9 @@
 #include <list>
 #include <string>
 
-int main() {
+int
+main()
+{
     std::list<std::string> text;
     std::list<std::string> clipboard;
     std::string line;
@@ -73,19 +75,20 @@ int main() {
         } else if (command == "Ctrl+X") {
             if (current != text.end()) {
                 clipboard.clear();
-                auto toSplice = current;
-                if ((isShift && offsetCurrent == current) || !isShift) {
+
+                if ((isShift && offset == 0) || !isShift) {
+                    auto toSplice = current;
                     current = std::next(current);
                     clipboard.splice(clipboard.begin(), text, toSplice);
                 } else if (isShift && offsetCurrent != current) {
                     // offset = std::distance(current, offsetCurrent);
                     if (offset > 0) {
-                        clipboard.splice(clipboard.begin(), text, current,
-                                         offsetCurrent);
+                        clipboard.splice(
+                          clipboard.begin(), text, current, offsetCurrent);
                         current = offsetCurrent;
-                    } else {
-                        clipboard.splice(clipboard.begin(), text, offsetCurrent,
-                                         current);
+                    } else if (offset < 0) {
+                        clipboard.splice(
+                          clipboard.begin(), text, offsetCurrent, current);
                     }
                 }
                 isShift = false;
@@ -96,7 +99,7 @@ int main() {
                 // offset = std::distance(current, offsetCurrent);
                 if (offset > 0) {
                     current = text.erase(current, offsetCurrent);
-                } else {
+                } else if (offset < 0) {
                     current = text.erase(offsetCurrent, current);
                 }
                 text.insert(current, clipboard.begin(), clipboard.end());
