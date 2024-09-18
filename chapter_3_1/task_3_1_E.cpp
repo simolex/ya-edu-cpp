@@ -29,7 +29,6 @@
 #include <iterator>
 #include <list>
 #include <string>
-
 int
 main()
 {
@@ -42,82 +41,71 @@ main()
         }
         text.push_back(line);
     }
-
     std::string command;
     auto current = text.begin();
-
-    int offset = 0;
-    bool isShift = false;
     auto offsetCurrent = text.begin();
-
+    bool isShift = false;
+    int offset;
     while (std::getline(std::cin, command)) {
         if (command == "Up") {
-            if (current == text.begin()) {
-                continue;
-            }
-
-            current--;
             if (isShift) {
-                offset--;
+                if (offsetCurrent != text.begin()) {
+                    offsetCurrent--;
+                    offset--;
+                }
             } else {
-                offsetCurrent = current;
+                if (current != text.begin()) {
+                    current--;
+                }
             }
         } else if (command == "Down") {
-            if (current == text.end()) {
-                continue;
-            }
-
-            current++;
             if (isShift) {
-                offset++;
+                if (offsetCurrent != text.end()) {
+                    offsetCurrent++;
+                    offset++;
+                }
             } else {
-                offsetCurrent = current;
+                if (current != text.end()) {
+                    current++;
+                }
             }
         } else if (command == "Ctrl+X") {
-            if (offsetCurrent == current && current == text.end()) {
-                continue;
+            if (current != text.end()) {
+                clipboard.clear();
+                if ((isShift && offset == 0) || !isShift) {
+                    auto toSplice = current;
+                    current = std::next(current);
+                    clipboard.splice(clipboard.begin(), text, toSplice);
+                } else if (offset > 0) {
+                    clipboard.splice(
+                      clipboard.begin(), text, current, offsetCurrent);
+                    current = offsetCurrent;
+                } else if (offset < 0) {
+                    clipboard.splice(
+                      clipboard.begin(), text, offsetCurrent, current);
+                }
+                isShift = false;
+                offset = 0;
+                offsetCurrent = current;
             }
-
-            clipboard.clear();
-
-            if (offsetCurrent == current) {
-                auto toSplice = current;
-                current = std::next(current);
-                clipboard.splice(clipboard.begin(), text, toSplice);
-            } else if (offset < 0) {
-                clipboard.splice(
-                  clipboard.begin(), text, current, offsetCurrent);
-                current = offsetCurrent;
-            } else {
-                clipboard.splice(
-                  clipboard.begin(), text, offsetCurrent, current);
-            }
-
-            isShift = false;
-            offset = 0;
-            offsetCurrent = current;
-
         } else if (command == "Ctrl+V") {
-            if (clipboard.empty()) {
-                continue;
+            if (clipboard.size() > 0) {
+                if (offset > 0) {
+                    current = text.erase(current, offsetCurrent);
+                } else if (offset < 0) {
+                    current = text.erase(offsetCurrent, current);
+                }
+                text.insert(current, clipboard.begin(), clipboard.end());
+                isShift = false;
+                offset = 0;
+                offsetCurrent = current;
             }
-
-            if (offset < 0) {
-                current = text.erase(current, offsetCurrent);
-            } else if (offset > 0) {
-                current = text.erase(offsetCurrent, current);
-            }
-            text.insert(current, clipboard.begin(), clipboard.end());
-
-            isShift = false;
-            offset = 0;
-            offsetCurrent = current;
-
         } else if (command == "Shift") {
             isShift = true;
+            offset = 0;
+            offsetCurrent = current;
         }
     }
-
     for (const auto& item : text) {
         std::cout << item << std::endl;
     }
