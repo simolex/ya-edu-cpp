@@ -45,9 +45,10 @@ main()
 
     std::string command;
     auto current = text.begin();
-    auto offsetCurrent = text.begin();
+
+    int offset = 0;
     bool isShift = false;
-    size_t offset;
+    auto offsetCurrent = text.begin();
 
     while (std::getline(std::cin, command)) {
         if (command == "Up") {
@@ -56,9 +57,8 @@ main()
             }
 
             current--;
-
             if (isShift) {
-                offsetCurrent--;
+                offset--;
             } else {
                 offsetCurrent = current;
             }
@@ -68,9 +68,8 @@ main()
             }
 
             current++;
-
             if (isShift) {
-                offsetCurrent++;
+                offset++;
             } else {
                 offsetCurrent = current;
             }
@@ -85,11 +84,11 @@ main()
                 auto toSplice = current;
                 current = std::next(current);
                 clipboard.splice(clipboard.begin(), text, toSplice);
-            } else if (offset > 0) {
+            } else if (offset < 0) {
                 clipboard.splice(
                   clipboard.begin(), text, current, offsetCurrent);
                 current = offsetCurrent;
-            } else if (offset < 0) {
+            } else {
                 clipboard.splice(
                   clipboard.begin(), text, offsetCurrent, current);
             }
@@ -99,21 +98,23 @@ main()
             offsetCurrent = current;
 
         } else if (command == "Ctrl+V") {
-            if (!clipboard.empty()) {
-                if (offset > 0) {
-                    current = text.erase(current, offsetCurrent);
-                } else if (offset < 0) {
-                    current = text.erase(offsetCurrent, current);
-                }
-                text.insert(current, clipboard.begin(), clipboard.end());
-                isShift = false;
-                offset = 0;
-                offsetCurrent = current;
+            if (clipboard.empty()) {
+                continue;
             }
-        } else if (command == "Shift") {
-            isShift = true;
+
+            if (offset < 0) {
+                current = text.erase(current, offsetCurrent);
+            } else if (offset > 0) {
+                current = text.erase(offsetCurrent, current);
+            }
+            text.insert(current, clipboard.begin(), clipboard.end());
+
+            isShift = false;
             offset = 0;
             offsetCurrent = current;
+
+        } else if (command == "Shift") {
+            isShift = true;
         }
     }
 
