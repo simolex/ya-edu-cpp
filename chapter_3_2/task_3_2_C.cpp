@@ -16,41 +16,24 @@
  */
 
 #include <iostream>
-#include <map>
+#include <set>
 #include <string>
-#include <vector>
 
-struct Node {
-    // std::string name;
-    std::map<std::string, Node> childs;
-};
-
-std::vector<std::string> Split(const std::string& str, char delimiter);
-
-int main() {
+int
+main()
+{
     std::string path;
+    std::set<std::string> paths;
 
     while (std::getline(std::cin, path)) {
-    }
-
-    // for (auto& letter : lettersResult) {
-    //     std::cout << letter;
-    // }
-    // std::cout << std::endl;
-}
-
-std::vector<std::string> Split(const std::string& str, char delimiter) {
-    size_t pointer = 0;
-    size_t count = str.length();
-    std::vector<std::string> result;
-
-    for (size_t i = 0; i < count; ++i) {
-        if (str[i] == delimiter) {
-            result.push_back(str.substr(pointer, i - pointer));
-            pointer = i + 1;
+        for (size_t i = 0; i < path.length(); ++i) {
+            if (path[i] == '/') {
+                paths.insert(path.substr(0, i + 1));
+            }
         }
     }
-    result.push_back(str.substr(pointer, count - pointer));
 
-    return result;
+    for (auto& p : paths) {
+        std::cout << p << std::endl;
+    }
 }
